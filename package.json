@@ -1,0 +1,24 @@
+{
+  "name": "req-validator",
+  "version": "1.0.0",
+  "description": "Express middleware to validate a request object and its parameters.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brauni800/req-validator.git"
+  },
+  "keywords": [
+    "req-validator",
+    "express",
+    "middleware"
+  ],
+  "author": "Braulio Betancourt <braulio.1796@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brauni800/req-validator/issues"
+  },
+  "homepage": "https://github.com/brauni800/req-validator#readme"
+}
