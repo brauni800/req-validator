@@ -15,7 +15,7 @@ Express middleware to validate a request data.
 
 ## Installation
 ```sh
-$ npm install req-validator
+$ npm install @brauni800/req-validator
 ```
 
 ## Quick Usage
