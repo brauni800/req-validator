@@ -10,7 +10,7 @@ Express middleware to validate a request data.
   * [options](#options-{-key:-value-})
     * [key](#key)
     * [value (rules)](#value-rules)
-* [callback](#callback(err,-res)-[optional])
+  * [callback](#callback(err,-res)-[optional])
 * [Error handling](#error-handling)
 
 ## Installation
@@ -158,7 +158,7 @@ Example:
 * `dto`: [Optional] By default `dto` is true. You can set `dto` as false if you don't want attach this parameter to the Request dto object.
 * `regex`: [Optional] You can define a regular expression, the middleware will validate if the parameter match with the condition. It will return an error in case the condition fails.
 
-## callback(err, res) [optional]
+### callback(err, res) [optional]
 By default this middleware already has its own error handling but if you want to handle errors, you must pass a function as a second parameter. You will receive an error object and a response object.
 
 ```javascript
