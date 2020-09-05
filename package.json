@@ -1,6 +1,6 @@
 {
-  "name": "@brauni800/req-validator",
-  "version": "1.0.1",
+  "name": "@brauni/req-validator",
+  "version": "1.0.0",
   "description": "Express middleware to validate a request object and its parameters.",
   "main": "index.js",
   "scripts": {

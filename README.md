@@ -1,4 +1,4 @@
-# req-validator
+# @brauni/req-validator
 
 Express middleware to validate a request data.
 
@@ -15,7 +15,7 @@ Express middleware to validate a request data.
 
 ## Installation
 ```sh
-$ npm install @brauni800/req-validator
+$ npm install @brauni/req-validator
 ```
 
 ## Quick Usage
@@ -38,7 +38,7 @@ $ npm install @brauni800/req-validator
 ### Express server
 ```javascript
 const app = require('express')();
-const { reqValidator } = require('req-validator');
+const { reqValidator } = require('@brauni/req-validator');
 
 const options = {
   id: { type: 'string', location: 'query.id' },
@@ -182,7 +182,7 @@ You can also identify the errors that the middleware provides with the `instance
 
 Usage example:
 ```javascript
-const { ReqValidatorError } = require('req-validator');
+const { ReqValidatorError } = require('@brauni/req-validator');
 
 const callback = (err, res) => {
   if (err instanceof ReqValidatorError) {
