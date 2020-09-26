@@ -6,11 +6,11 @@ Express middleware to validate a request data.
 * [Quick Usage](#quick-usage)
   * [Request example](#request-example)
   * [Express Server](#express-server)
-* [reqValidator](#reqvalidator(options-[,-callback]))
-  * [options](#options-{-key:-value-})
-    * [key](#key)
-    * [value (rules)](#value-rules)
-  * [callback](#callback(err,-res)-[optional])
+* [reqValidator](#reqvalidator)
+  * [options](#options)
+    * [parameter name](#parameter-name)
+    * [rules](#rules)
+  * [callback](#callback-optional)
 * [Error handling](#error-handling)
 
 ## Installation
@@ -22,7 +22,6 @@ $ npm install @brauni/req-validator
 ### Request example
 ```json
 {
-  ...
 
   "query": {
     "id": "123456"
@@ -32,7 +31,6 @@ $ npm install @brauni/req-validator
     "num": 10
   },
 
-  ...
 }
 ```
 ### Express server
@@ -70,15 +68,15 @@ app.listen();
 //  }
 ```
 
-## reqValidator(options [, callback])
+## reqValidator
 Receive 2 parameters: `options` and a `callback`. The only required parameter is `options`.
 In `options` you can define all rules that you want to validate by a JSON object.
 Then an object called `dto` will be attached to the request object that will contain all the parameters validated by this function.
 
-### options { key: value }
-#### key
+### options
+#### parameter name
 Name that the parameter receives in the data that is attached to the Request. If the location rule is not defined, the key must have the name of the original parameter.
-#### value (rules)
+#### rules
 JSON object that contains the validation rules for this parameter. Here you can see all rules that you can define:
 
 * `type`: Data type of the parameter, possible values:
@@ -92,7 +90,6 @@ Example:
 ```json
 // Request
 {
-  ...
 
   "query": {
     "id": "123456"
@@ -104,7 +101,6 @@ Example:
     "bars": []
   },
 
-  ...
 }
 
 
@@ -135,7 +131,6 @@ Example:
 ```json
 // Rules
 {
-  ...
 
   "foo": {
     "type": "array",
@@ -145,7 +140,6 @@ Example:
     },
   },
 
-  ...
 }
 
 // Request
@@ -158,7 +152,7 @@ Example:
 * `dto`: [Optional] By default `dto` is true. You can set `dto` as false if you don't want attach this parameter to the Request dto object.
 * `regex`: [Optional] You can define a regular expression, the middleware will validate if the parameter match with the condition. It will return an error in case the condition fails.
 
-### callback(err, res) [optional]
+### callback [optional]
 By default this middleware already has its own error handling but if you want to handle errors, you must pass a function as a second parameter. You will receive an error object and a response object.
 
 ```javascript

@@ -8,11 +8,9 @@ module.exports = {
     try {
       req.dto = {};
       for (const [param, data] of Object.entries(options)) {
-        const parameter = new Parameter({ ...data, param });
-        const { PropertyRequiredError } = errors;
-        if (!parameter.type) throw new PropertyRequiredError(parameter.location);
-        const paramValue = parameter.validation(req);
-        if (parameter.dto) req.dto[param] = paramValue;
+        const parameter = new Parameter({ ...data }, param, req);
+        parameter.test();
+        if (parameter.dto) req.dto[param] = parameter.paramValue;
       }
       next();
     } catch (error) {

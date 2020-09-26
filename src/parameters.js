@@ -6,36 +6,38 @@ const {
   TypeError,
 } = require('./error');
 
-/**
- * [description]
- */
 class Parameter {
   /**
-   * @param {object} data            [description]
-   * @param {string} data.type       [description]
-   * @param {object} [data.default]  [description]
-   * @param {string} [data.location] [description]
-   * @param {object} [data.item]     [description]
-   * @param {boolean} [data.dto]     [description]
-   * @param {string} [data.regex]    [description]
+   * @param {object}  data            [description]
+   * @param {string}  data.param      [description]
+   * @param {string}  data.json       [description]
+   * @param {string}  data.type       [description]
+   * @param {object}  [data.default]  [description]
+   * @param {string}  [data.location] [description]
+   * @param {object}  [data.item]     [description]
+   * @param {boolean} [data.dto]      [description]
+   * @param {string}  [data.regex]    [description]
    */
-  constructor(data) {
-    this.param = data.param;
+  constructor(data, param, json) {
+    this.json = json;
+    this.param = param;
     this.type = 'type' in data ? data.type : undefined;
     this.location = 'location' in data ? data.location : data.param;
     this.default = 'default' in data ? data.default : undefined;
     this.item = 'item' in data ? data.item : undefined;
     this.dto = 'dto' in data ? data.dto : true;
     this.regex = 'regex' in data ? data.regex : undefined;
+    this.paramValue = Parameter.extractValue(this.json, this.location);
   }
 
   /**
-   * Gets the value of a parameter
-   * @param {object} json  Object to search the parameter.
-   * @returns {any}        Return the value of the parameter.
+   * Extract the value of a parameter in an object.
+   * @param {object} json       Object to search the parameter.
+   * @param {string} _location  Location of the parameter.
+   * @returns {any}             Return the value of the parameter.
    */
-  getParamValue(json) {
-    const location = this.location.split('.').reduce((accumulator, current) => {
+  static extractValue(json, _location) {
+    const location = _location.split('.').reduce((accumulator, current) => {
       if (/^.*\[[0-9]*\]$/.test(current)) {
         return accumulator.concat(current.split('[').map((key) => key.includes(']') ? key.slice(0, -1) : key));
       } else {
@@ -52,25 +54,26 @@ class Parameter {
 
   /**
    * Validates the type of the parameter.
-   * @param {any} param Parameter to validate.
    * @returns {boolean} Return true if a parameter has the correct type, false in other case.
    */
-  isValidType(param) {
-    return (this.type !== 'array' && typeof param === this.type) ||
-        (this.type === 'array' && Array.isArray(param)) ||
-        (!this.isRequired() && param === null);
+  isValidType() {
+    if (this.isRequired() && this.paramValue === null) return false;
+    switch(this.type) {
+      case 'array': return Array.isArray(this.paramValue);
+      case 'number':
+        const isNumber = !isNaN(this.paramValue);
+        if (isNumber) this.paramValue = Number(this.paramValue);
+        return isNumber;
+      default: return typeof this.paramValue === this.type;
+    }
   }
 
   /**
    * Items of an array are validated, verifying that the properties satisfy the conditions provided by this.item property.
-   * @param {Array} items Array of values to validate.
-   * @param {object} json Object to search the array and its elements.
    */
-  validItems(items, json) {
-    for (const [index] of Object.entries(items)) {
-      const parameter = new Parameter({ ...this.item, location: `${this.location}[${index}]`, param: index });
-      if (!parameter.type) throw new PropertyRequiredError(`${this.location}[${index}]`);
-      parameter.validation(json);
+  testItems() {
+    for (const [index] of Object.entries(this.paramValue)) {
+      new Parameter({ ...this.item, location: `${this.location}[${index}]` }, index, this.json).test();
     }
   }
 
@@ -83,11 +86,10 @@ class Parameter {
   }
 
   /**
-   * Determine if a value match with a regular expression.
-   * @param {any} value Value to match with the regular expression. Can be a number, string or JSON.
+   * Determine if the paramValue match with a regular expression.
    * @returns {boolean} Return true if the match is correct, else in other case.
    */
-  matchRegExp(value) {
+  matchRegExp() {
     const parseToString = (valueToParse) => {
       switch (typeof valueToParse) {
         case 'object': return JSON.stringify(valueToParse);
@@ -95,7 +97,7 @@ class Parameter {
         default: return valueToParse;
       }
     };
-    const paramValue = parseToString(value);
+    const paramValue = parseToString(this.paramValue);
     if (/^\/.+\/.*$/.test(this.regex)) {
       const regexParts = this.regex.split('/').slice(1);
       const flags = regexParts.pop();
@@ -105,20 +107,23 @@ class Parameter {
   }
 
   /**
-   * The value of a parameter is found in an object, the data type is validated,
-   * it decide if is required, and if is an array, its elements are validated.
-   * @param {object} json Object to search the parameter.
-   * @returns {any}       Parameter value.
+   * A series of tests are performed to determine the validity of the parameter value.
    */
-  validation(json) {
-    let paramValue = this.getParamValue(json);
-    if (!this.isRequired(paramValue) && (paramValue === undefined || paramValue === null)) paramValue = this.default;
-    if (!this.isValidType(paramValue)) throw new TypeError(this.location || this.param, this.type);
-    if (this.regex) {
-      if (!this.matchRegExp(paramValue)) throw new RegexError(this.location);
-    }
-    if (this.type === 'array' && this.item) this.validItems(paramValue, json);
-    return paramValue;
+  test() {
+    // type is required
+    if (!this.type) throw new PropertyRequiredError(this.location);
+
+    // if is not required, set the default value
+    if (!this.isRequired() && (this.paramValue === undefined || this.paramValue === null)) this.paramValue = this.default;
+
+    // type validation and parse the paramValue
+    if (!this.isValidType()) throw new TypeError(this.location || this.param, this.type);
+
+    // regex validation
+    if (this.regex && !this.matchRegExp()) throw new RegexError(this.location);
+
+    // array items validations
+    if (this.type === 'array' && this.item) this.testItems();
   }
 }
 
