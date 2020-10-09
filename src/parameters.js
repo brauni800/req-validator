@@ -58,6 +58,7 @@ class Parameter {
    */
   isValidType() {
     if (this.isRequired() && this.paramValue === null) return false;
+    if (!this.isRequired() && this.paramValue === null) return true;
     switch(this.type) {
       case 'array': return Array.isArray(this.paramValue);
       case 'number':
